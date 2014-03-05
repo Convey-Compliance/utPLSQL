@@ -418,7 +418,7 @@ Added Standard Headers
          THEN
             utreport.pl (
                   'Compile Error "'
-               || SQLERRM
+               || DBMS_UTILITY.FORMAT_ERROR_STACK||CHR(10)||DBMS_UTILITY.FORMAT_ERROR_BACKTRACE
                || '" on: '
             );
             utreport.pl (v_str);
@@ -430,7 +430,7 @@ Added Standard Headers
             || '.'
             || v_name
             || ': '
-            || SQLERRM,
+            || DBMS_UTILITY.FORMAT_ERROR_STACK||CHR(10)||DBMS_UTILITY.FORMAT_ERROR_BACKTRACE,
             FALSE,
             null_ok_in=> NULL,
             raise_exc_in=> propagate_in,
@@ -483,6 +483,10 @@ Added Standard Headers
    IS
    BEGIN
       init_tests;
+      
+      IF not from_suite_in THEN
+        utreport.open;
+      END IF;
 
       --Removed test for null as utConfig.prefix never returns null 
       IF      prefix_in IS NOT NULL
@@ -632,7 +636,7 @@ Added Standard Headers
          recngo ('internal_error');
       WHEN OTHERS
       THEN
-         recngo (SQLERRM);
+         recngo (DBMS_UTILITY.FORMAT_ERROR_STACK||CHR(10)||DBMS_UTILITY.FORMAT_ERROR_BACKTRACE);
    END;
 
    /* Programs used in ut_PKG.setup */
@@ -1074,7 +1078,7 @@ Added Standard Headers
       THEN
          utassert.this (
                'utPLSQL.test failure: '
-            || SQLERRM,
+            || DBMS_UTILITY.FORMAT_ERROR_STACK||CHR(10)||DBMS_UTILITY.FORMAT_ERROR_BACKTRACE,
             FALSE
          );
          cleanup (FALSE);
@@ -1105,6 +1109,8 @@ Added Standard Headers
          );
          utresult.show;
       ELSE
+         utreport.open;
+         
          FOR rec IN  (SELECT   *
                           FROM ut_package
                          WHERE suite_id = v_suite
@@ -1153,6 +1159,8 @@ begin
             SYSDATE,
             v_success
          );
+         
+        utreport.close;
       END IF;
 
       IF reset_results_in
