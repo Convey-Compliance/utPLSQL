@@ -42,6 +42,7 @@ drop package UTUTP;
 drop package UTFILEREPORTER;
 drop package UTHTMLREPORTER;
 drop package UTOUTPUTREPORTER;
+drop package UTJUNITOUTPUTREPORTER;
 drop package UTREPORT;
 drop package UTPIPE;
 
