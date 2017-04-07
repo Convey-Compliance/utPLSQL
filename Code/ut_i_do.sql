@@ -3,7 +3,8 @@ SET TERMOUT OFF
 SET ECHO OFF
 SET VERIFY OFF
 SET FEEDBACK OFF 
-SET TTITLE OFF
+rem SET TTITLE OFF
+SET LINESIZE 2000
 SET SERVEROUTPUT ON SIZE 1000000 FORMAT WRAPPED
 SET DEFINE ON
 
@@ -23,26 +24,34 @@ DEFINE line2='============================================================='
 DEFINE finished='.                            Finished'
 DEFINE UT='utPLSQL'
 
-COLUMN col NOPRINT NEW_VALUE ut_owner
+COLUMN col NOPRINT NEW_VALUE ut_session
 select USER col from dual;
 
+COLUMN col NOPRINT NEW_VALUE ut_owner
+select nvl('&2',USER) col from dual;
+
+alter session set current_schema=&ut_owner;
 
 COLUMN col NOPRINT NEW_VALUE next_script
-select decode(LOWER('&1'),'install','ut_i_install',
+select decode( LOWER('&1'),
+                 'install',  'ut_i_install',
+                 'plonly',   'ut_i_installplsqlonly',
                  'recompile','ut_i_recompile',
-                 'compile','ut_i_recompile',
-                 'synonyms','ut_i_synonyms',
-                 'synonym','ut_i_synonyms',
+                 'compile',  'ut_i_recompile',
+                 'synonyms', 'ut_i_synonyms',
+                 'synonym',  'ut_i_synonyms',
                  'uninstall','ut_i_uninstall',
                  'deinstall','ut_i_uninstall',
-                   'ERROR') col from dual;
+                 'ERROR') col from dual;
 
 COLUMN col NOPRINT NEW_VALUE txt_prompt
-select decode('&next_script','ut_i_install','I N S T A L L A T I O N',
-                 'ut_i_recompile','R E C O M P I L A T I O N',
-                 'ut_i_synonyms','S Y N O N Y M S',
-                 'ut_i_uninstall','D E I N S T A L L A T I O N',
-                   'ERROR') col from dual;
+select decode( '&next_script',
+                 'ut_i_install',          'I N S T A L L A T I O N',
+                 'ut_i_installplsqlonly', 'P L / S Q L',
+                 'ut_i_recompile',        'R E C O M P I L A T I O N',
+                 'ut_i_synonyms',         'S Y N O N Y M S',
+                 'ut_i_uninstall',        'D E I N S T A L L A T I O N',
+                 'ERROR') col from dual;
 ------------------------------------------------------
 
 SET TERMOUT ON
@@ -73,3 +82,5 @@ PROMPT
 PROMPT [ &txt_prompt ]
 @@ut_i_preprocess
 @@&next_script
+
+alter session set current_schema=&ut_session;

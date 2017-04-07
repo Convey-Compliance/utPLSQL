@@ -22,7 +22,7 @@ select count(privilege) col from session_privs where privilege='CREATE PUBLIC SY
 
 SPOOL &uscript
 select decode(&fine,0,'','PROMPT Creating synonyms ...') from dual;
-select decode(&fine,0,'','create public synonym '||object_name||' for '||object_name||';')
+select decode(&fine,0,'','create or replace public synonym '||object_name||' for &ut_owner..'||object_name||';')
 from all_objects
 where owner='&ut_owner' 
 and object_name like 'UT%' 
