@@ -19,14 +19,14 @@ SET TERMOUT OFF
 SPOOL &uscript
 
 select 'PROMPT Granting all on every object...' from dual;
-select 'grant all on '||object_name||' to public;'
+select 'grant all on &ut_owner..'||object_name||' to public;'
 from all_objects
 where owner='&ut_owner' and object_name like 'UT%' and 
   object_type in('TABLE','SEQUENCE','PACKAGE', 'VIEW');
 select 'PROMPT &finished' from dual;
 
 select 'PROMPT Granting execute on packages...' from dual;
-select 'grant execute on '||object_name||' to public;'
+select 'grant execute on &ut_owner..'||object_name||' to public;'
 from all_objects
 where owner='&ut_owner' and object_name like 'UT%' and 
   object_type ='PACKAGE';
